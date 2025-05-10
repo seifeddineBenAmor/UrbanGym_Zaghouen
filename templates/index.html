@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D Cylindrical Carousel</title>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url("{{ url_for('static', filename='thumbnails/bg.png') }}");
+            background-size: cover;
+            background-position: center;
+            color: #00ff00;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: pan-x;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .menu-icon {
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        /* Welcome Section */
+        .welcome-container {
+            max-width: 90%;
+            margin-top: 130px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .quote {
+            font-size: 1rem;
+            font-style: italic;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        /* Carousel */
+        .carousel-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 55vh;
+            perspective: 1200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: -10px; /* Adjusted to bring carousel closer */
+        }
+
+        .carousel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .card {
+    position: absolute;
+    width: 180px;
+    height: 300px;
+    background-color: lightgray;
+    opacity: 1;
+    border-radius: 20px;
+    box-shadow: 
+        0 4px 10px rgba(0, 0, 0, 0.1), 
+        0 0 8px #00FF00,
+        0 0 15px rgba(0, 255, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    transition: transform 0.5s, opacity 0.5s, box-shadow 0.5s;
+}
+
+.card:hover {
+    box-shadow: 
+        0 4px 10px rgba(0, 0, 0, 0.1), 
+        0 0 12px #00FF00, 
+        0 0 20px rgba(0, 255, 0, 0.8);
+}
+
+
+
+        .card a {
+            text-decoration: none;
+            color: inherit;
+        }
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&display=swap');
+    .gym-text {
+    font-family: 'Anton', sans-serif; /* Strong, bold font */
+    font-size: 2rem; /* Large and impactful */
+    text-transform: uppercase; /* All caps for a powerful look */
+    letter-spacing: 1px; /* Slight spacing for readability */
+    color: #0ad014; /* Gold for a premium gym feel */
+}
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="user-image">
+            <img src="{{ url_for('static', filename='users/' + user.Photo) if user.Photo else url_for('static', filename='users/no_image.png') }}" 
+                 alt="{{ user.Photo }}" 
+                 width="50" 
+                 height="70">
+        </div>
+        <div class="gym-text" style="flex-grow: 1; text-align: center;">
+            Bonjour, {{ user.name }}!
+        </div>
+        
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" 
+                 alt="Logo" 
+                 width="70" 
+                 height="70">
+        </div>
+        <!--<div class="menu-icon">☰</div>-->
+    </div>
+
+    <!-- Welcome Section -->
+    <div class="welcome-container">
+        <h1></h1>
+        <h2>Choisissez votre séance du jour !</h2>
+        <p class="quote">"Push yourself, because no one else is going to do it for you!"</p>
+    </div>
+
+    <!-- Workout Carousel --> 
+    <div class="carousel-wrapper">
+        <div class="carousel">
+            {% for day in days %}
+            <div class="card">
+                <a href="{{ url_for('view_day', day=day[0]) }}">Séance  {{ day[0] }}
+                    {% if user.gender == 'Female' %}
+                    <img src="{{ url_for('static', filename='thumbnails/'+day[2]) }}" alt="Workout {{ day[0] }}" style="width: 100px; height: auto;" href="{{ url_for('view_day', day=day[0]) }}"/>
+                    {% else %}
+                    <img src="{{ url_for('static', filename='thumbnails/'+day[1]) }}" alt="Workout {{ day[0] }}" style="width: 100px; height: auto;" href="{{ url_for('view_day', day=day[0]) }}"/>
+                    {% endif %}
+
+
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        const carousel = document.querySelector('.carousel');
+        const cards = document.querySelectorAll('.card');
+        const totalCards = cards.length;
+        const angleStep = 360 / totalCards;
+        let currentAngle = 0;
+
+        const radius = Math.max(250, totalCards * 60);
+
+        function updateCardPositions() {
+            cards.forEach((card, index) => {
+                const theta = (index * angleStep * Math.PI) / 180;
+                const x = radius * Math.sin(theta);
+                const z = radius * Math.cos(theta) - radius;
+                card.style.transform = `rotateY(${index * angleStep}deg) translateZ(${radius}px)`;
+            });
+        }
+
+        function rotateCarousel(direction) {
+            currentAngle += direction * angleStep;
+            carousel.style.transform = `rotateY(${currentAngle}deg)`;
+        }
+
+        let startX = 0;
+        let isSwiping = false;
+
+        document.addEventListener('touchstart', (event) => {
+            startX = event.touches[0].clientX;
+            isSwiping = true;
+        });
+
+        document.addEventListener('touchmove', (event) => {
+            if (!isSwiping) return;
+            let deltaX = event.touches[0].clientX - startX;
+
+            if (Math.abs(deltaX) > 50) {
+                if (deltaX < 0) rotateCarousel(-1);
+                else rotateCarousel(1);
+                isSwiping = false;
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            isSwiping = false;
+        });
+
+        updateCardPositions();
+
+        cards.forEach((card) => {
+    card.addEventListener("click", (event) => {
+        event.preventDefault(); // Prevent immediate navigation
+
+        const link = card.querySelector("a").href; // Get the link
+
+        // Add animation effect
+        card.style.transition = "transform 0.8s ease-in-out";
+        card.style.transform += " scale(2.5) rotateY(540deg)"; // Increase size and spin
+
+        // Wait for animation to finish before navigating
+        setTimeout(() => {
+            window.location.href = link;
+        }, 800); // Adjust timing to match animation
+    });
+});
+
+    </script>
+
+</body>
+</html>
